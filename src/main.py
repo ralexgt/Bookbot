@@ -1,10 +1,26 @@
 import os
 from dotenv import load_dotenv
 
+# checks if it's a txt
+def is_txt(file_path):
+  file_name = file_path.split("/")[-1]
+  if '.' in file_name:
+    if file_name.split(".")[1] == "txt":
+      return True
+  return False
+
 # reads a .txt and returns the content of the file
-def get_text_from_file(filepath):
-  with open(filepath) as file:
+def get_text_from_file(file_path):
+  if not is_txt(file_path):
+    raise Exception("not a txt file")
+  with open(file_path) as file:
     return file.read()
+
+# returns the file's name without the extension
+def get_book_name(file_path):
+  book_name = file_path.split("/")[-1]
+  book_name = book_name.split(".")[0]
+  return book_name
 
 # counts how many words are in the text file
 def count_words(text):
@@ -54,10 +70,15 @@ def generate_report(book, data):
 def main():
   load_dotenv()
   
-  file_path = os.getenv('FILE_PATH')
-  text = get_text_from_file(file_path)
-  book_name = file_path.split("/")[-1]
-  book_name = book_name.split(".")[0]
+  file_path = os.getenv("FILE_PATH")
+  text = ""
+  try: 
+    text = get_text_from_file(file_path)
+  except Exception as e:
+    print(e)
+    return 1
+  
+  book_name = get_book_name(file_path)
   
   words_counter = count_words(text) 
   char_counter = count_characters(text)
@@ -71,4 +92,5 @@ def main():
     }
   
   generate_report(book_name, data)
+
 main()
